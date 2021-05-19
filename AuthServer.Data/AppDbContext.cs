@@ -20,7 +20,7 @@ namespace AuthServer.Data
         public DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            
+            builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
         }
     }
 }

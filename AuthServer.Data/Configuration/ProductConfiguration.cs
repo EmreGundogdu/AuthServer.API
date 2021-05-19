@@ -16,6 +16,9 @@ namespace AuthServer.Data.Configuration
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Name).IsRequired();
             builder.Property(x => x.Name).HasMaxLength(200);
+            builder.Property(x => x.Stock).IsRequired();
+            builder.Property(x => x.Price).HasColumnType("decimal(18,2)");
+            builder.Property(x => x.UserId).IsRequired();
         }
     }
 }
