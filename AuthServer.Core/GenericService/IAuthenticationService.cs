@@ -13,6 +13,6 @@ namespace AuthServer.Core.GenericService
         Task<Response<TokenDto>> CreateTokenAsync(LoginDto loginDto);
         Task<Response<TokenDto>> CreateTokenByRefreshToken(string refreshToken);
         Task<Response<NoDataDto>> RevokeRefreshToken(string refreshToken);
-        Task<Response<ClientTokenDto>> CreateTokenByCleint(ClientLoginDto clientLoginDto);
+        Response<ClientTokenDto> CreateTokenByCleint(ClientLoginDto clientLoginDto);
     }
 }
