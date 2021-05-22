@@ -84,7 +84,7 @@ namespace AuthServer.API
                      ValidateIssuer = true,
                      ValidateLifetime = true,
 
-                     ClockSkew=TimeSpan.Zero 
+                     ClockSkew = TimeSpan.Zero
                  };
              });
 
@@ -108,6 +108,8 @@ namespace AuthServer.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
