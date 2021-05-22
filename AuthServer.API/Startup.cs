@@ -90,12 +90,13 @@ namespace AuthServer.API
                      ClockSkew = TimeSpan.Zero
                  };
              });
-            services.UseCustomValidationResponse();
 
-            services.AddControllers().AddFluentValidation(options=>
+            services.AddControllers().AddFluentValidation(options =>
             {
                 options.RegisterValidatorsFromAssemblyContaining<Startup>();
             });
+
+            services.UseCustomValidationResponse();
 
 
             services.AddSwaggerGen(c =>
@@ -112,7 +113,10 @@ namespace AuthServer.API
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthServer.API v1"));
-            }
+            }else
+            {
+                app.UseCustomException();
+            }            
 
             app.UseHttpsRedirection();
 

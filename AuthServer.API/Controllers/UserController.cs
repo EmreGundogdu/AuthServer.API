@@ -3,6 +3,7 @@ using AuthServer.Core.GenericService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedLibrary.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,7 @@ namespace AuthServer.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser(CreateUserDto createUserDto)
         {
+            //throw new CustomException("Veritabanında bir hata meydana geldi");
             return ActionResultInstance(await _userService.CreateUserAsync(createUserDto));
         }
         [Authorize]
