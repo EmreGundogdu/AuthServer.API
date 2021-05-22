@@ -1,8 +1,18 @@
 using AuthServer.Core.Configuration;
+using AuthServer.Core.GenericService;
+using AuthServer.Core.Models;
+using AuthServer.Core.Repositories;
+using AuthServer.Core.UnitOfWork;
+using AuthServer.Data;
+using AuthServer.Data.Repositories;
+using AuthServer.Service.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UdemyAuthServer.Service.Services;
 
 namespace AuthServer.API
 {
@@ -25,11 +36,58 @@ namespace AuthServer.API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             services.Configure<CustomTokenOption>(Configuration.GetSection("TokenOption"));
+
+
             services.Configure<List<Client>>(Configuration.GetSection("Clients"));
+
+
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("SqlServer"), sqlOptions =>
+                 {
+                     sqlOptions.MigrationsAssembly("AuthServer.Data");
+                 });
+            });
+
+            services.AddIdentity<UserApp, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequireNonAlphanumeric = false;
+            }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
+             {
+                 var tokenOptions = Configuration.GetSection("TokenOption").Get<CustomTokenOption>();
+                 opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                 {
+                     ValidIssuer = tokenOptions.Issuer,
+                     ValidAudience = tokenOptions.Audience[0],
+                     IssuerSigningKey = SignService.GetSymmetricSecurityKey(tokenOptions.SecurityKey),
+
+                     ValidateIssuerSigningKey = true,
+                     ValidateAudience = true,
+                     ValidateIssuer = true,
+                     ValidateLifetime = true,
+
+                     ClockSkew=TimeSpan.Zero 
+                 };
+             });
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
