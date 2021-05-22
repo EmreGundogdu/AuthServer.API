@@ -14,6 +14,7 @@ namespace MiniApp2.API.Controllers
     [ApiController]
     public class InvoiceController : ControllerBase
     {
+        [HttpGet]
         public IActionResult GetVoices()
         {
             var userName = HttpContext.User.Identity.Name;
