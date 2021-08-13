@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace AuthServer.Data
 {
-    public class AppDbContext:IdentityDbContext<UserApp,IdentityRole,string>
+    public class AppDbContext : IdentityDbContext<UserApp, IdentityRole, string>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
